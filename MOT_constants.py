@@ -197,4 +197,4 @@ def brownian_motion(C1, C2):
     C1.dx = vel_x
     C1.dy = vel_y
 
-print (win_dimension)
+#print (win_dimension)

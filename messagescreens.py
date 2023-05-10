@@ -228,9 +228,9 @@ def correct_txt(selected, total, audio_path):
     pg.display.flip()
                     # plays sounds
     if selected == total:
-        pg.mixer.music.load(os.path.join(audio_path,'correct.mp3'))
+        pg.mixer.music.load(os.path.join(audio_path,'correct.ogg'))
     else:
-        pg.mixer.music.load(os.path.join(audio_path,'incorrect.mp3'))
+        pg.mixer.music.load(os.path.join(audio_path,'incorrect.ogg'))
     pg.mixer.music.set_volume(0.22)
     pg.mixer.music.play()
     pg.time.delay(2000)

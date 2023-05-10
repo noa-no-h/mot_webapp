@@ -1,4 +1,4 @@
-flask==1.1.1
+flask==2.3.2
 egi_pynetstation
 pygame
 #sys
@@ -12,3 +12,4 @@ datetime
 numpy
 #warnings
 screeninfo
+asyncio
