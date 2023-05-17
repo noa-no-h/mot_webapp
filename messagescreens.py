@@ -1,6 +1,6 @@
 
 #from psychopy import visual
-from egi_pynetstation import NetStation
+#from egi_pynetstation import NetStation
 import pygame as pg
 import os
 from MOT_constants import *
