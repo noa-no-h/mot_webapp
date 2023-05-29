@@ -4,7 +4,7 @@ import time
 import pygame as pg
 #from screeninfo import get_monitors
 
-
+pg.init()
 
 # == Path For Storing Trial Results. ==
 save_path = 'C:\\Users\\Administrator\\psychexperiment\\multiple-object-tracking-paradigm\\results\\'
@@ -26,6 +26,11 @@ answer_time = Tans = animation_time + 60  # time limit to make answer
 
 feedback_time = 1
 
+print("about to get info!")
+info = pg.display.Info()
+win_width = info.current_w
+win_height = info.current_h
+win_dimension = (win_width, win_height)
 
 """
 Define the project display window
@@ -41,10 +46,7 @@ win_width = m.width
 win_height = m.height  # pixels; width of screen
 win_dimension = (win_width, win_height)
 """
-"""info = pg.display.Info()
-win_width = info.current_w
-win_height = info.current_h
-win_dimension = (win_width, win_height)"""
+
 
 
 """
@@ -145,14 +147,17 @@ RED = [255, 50, 50]
 """
 Generate random x and y coordinates within the window boundary
 """
+boundary_size: int = 30 # how large the boundary is
+
 def make_boundary(win_height, win_width):
-    boundary_size: int = 30 # how large the boundary is
     boundary_location = ['up', 'down', 'left', 'right']
     boundary_coord = [obj_radius + boundary_size, (win_height - (obj_radius + boundary_size)), obj_radius + boundary_size, (win_width - (obj_radius + boundary_size))]
     boundary = dict(zip(boundary_location, boundary_coord))
     listX, listY = [], []
     rangeX, rangeY = range(boundary['left'], boundary['right']), range(boundary['up'], boundary['down'])
     return boundary
+
+boundary = make_boundary(win_height, win_width)
 
 """
 Define session information for recording purposes

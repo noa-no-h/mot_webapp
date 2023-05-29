@@ -7,6 +7,7 @@ from MOT_constants import *
 import sys
 #import pylsl
 
+print("got messagescreens!")
 # == Set window ==
 x, y = 50, 50
 os.environ['SDL_VIDEO_WINDOW_POS'] = "%d,%d" % (x,y)

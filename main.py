@@ -28,7 +28,8 @@ from numpy import nanmean, nanstd
 from warnings import filterwarnings
 #import pylsl
 
-filterwarnings("ignore") #ignore warnings
+print('imported!')
+#filterwarnings("ignore") #ignore warnings
 
 # == Game Structure Variables ==
 # == Attributes and relations between those attributes ==
@@ -126,6 +127,7 @@ class MOTobj:
         self.x += self.dx
         self.y += self.dy
         # -- If the object reaches the window boundary, bounce back
+        #boundary = make_boundary(win_height, win_width)
         if self.x < boundary["left"] or self.x > boundary["right"]:
             self.dx *= -1
         if self.y < boundary["up"] or self.y > boundary["down"]:
@@ -348,9 +350,42 @@ def d_prime(dprimes, hit_rate, game):
     if farate == 0:
         farate = half_fa
 
+    def erfcinv_approx(x):
+        # Check for special cases
+        if x == 0:
+            return float('inf')
+        if x == 2:
+            return float('-inf')
+
+        # Approximation of erfcinv using Newton's method
+        def f(x, y):
+            return math.erfc(x) - y
+
+        def df(x):
+            return -2 / math.sqrt(math.pi) * math.exp(-x**2)
+
+        max_iterations = 100
+        tolerance = 1e-10
+
+        # Initial guess
+        guess = -math.log(0.5 * (2 - x))
+
+        # Newton's method iteration
+        for _ in range(max_iterations):
+            y = f(guess, x)
+            if abs(y) < tolerance:
+                return guess
+            derivative = df(guess)
+            if derivative == 0:
+                break
+            guess -= y / derivative
+
+        # Return the best approximation found
+        return guess
+
     # calculate z values
-    z_hit = -math.sqrt(2) * math.erfcinv(2 * hitrate)
-    z_fa = -math.sqrt(2) * math.erfcinv(2 * farate)
+    z_hit = -math.sqrt(2) * erfcinv_approx(2 * hitrate)
+    z_fa = -math.sqrt(2) * erfcinv_approx(2 * farate)
     """z_hit = norm.ppf(hitrate)
     z_fa = norm.ppf(farate)"""
 
@@ -379,8 +414,9 @@ def prepare_files():
     date_sys = str(date.today())
     user_number = user_info("User Number: ")
     name = user_info("Full Name (Please enter your name exactly [e.g. 'John Doe']): ").lower()
+    return "log", "highscore_path", high_score, user_number, name, date_sys, "audio_path", participant_number, "results_path"
 
-    if getattr(sys, 'frozen', False): 
+    """if getattr(sys, 'frozen', False): 
         # The application is frozen (is an executable)
         file_path = os.path.dirname(sys.executable)
     else:
@@ -443,7 +479,7 @@ def prepare_files():
     log.close()
     log = open(results_csv_path, 'a')
     audio_path = os.path.join(file_path, 'Sound')
-    return log, highscore_path, high_score, user_number, name, date_sys, audio_path, participant_number, results_path
+    return log, highscore_path, high_score, user_number, name, date_sys, audio_path, participant_number, results_path"""
 
 # == Runs Real Trials (same as practice but user performance is saved) ==
 def trials(game, recorder, gametype, time_or_trials, high_score, audio_path, participant_number, user_number, name, outlet):
@@ -708,7 +744,8 @@ async def main(unified):
     while mot_play_again == True:
         # == Initiate pygame and collect user information ==
         #consent_screens()
-        pg.init()
+        #pg.init()
+        print("initted!")
         pg.mixer.init()
         log, highscore_path, high_score, user_number, name, date_sys, audio_path, participant_number, results_path = prepare_files()
         

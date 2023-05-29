@@ -2,3 +2,4 @@ participant number, user_number (for Lauren), name, dprime_avg, dprime_std, high
 1,4,noa,NaN,NaN,NaN,NaN,NaN
 2,1,n,NaN,NaN,NaN,NaN,NaN
 3,0,n,NaN,NaN,NaN,NaN,NaN
+3,5,f,nan,nan,0,1,0
