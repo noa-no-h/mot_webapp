@@ -21,7 +21,7 @@ import os
 #from scipy.special import comb
 #from scipy.stats import norm
 from math import sqrt, floor
-from messagescreens import  *
+import messagescreens
 from datetime import *
 from csv import reader
 from numpy import nanmean, nanstd

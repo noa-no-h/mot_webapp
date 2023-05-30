@@ -4,6 +4,7 @@ import time
 import pygame as pg
 #from screeninfo import get_monitors
 
+print("here at MOT_constants")
 pg.init()
 
 # == Path For Storing Trial Results. ==
