@@ -20,13 +20,51 @@ from random import choice, uniform
 import os
 #from scipy.special import comb
 #from scipy.stats import norm
-from math import sqrt, floor
+from math import sqrt, floor, factorial, erfc, exp, log, pi
 import messagescreens
 from datetime import *
 from csv import reader
 from numpy import nanmean, nanstd
 from warnings import filterwarnings
 #import pylsl
+
+print("in main after imports")
+
+obj_radius = messagescreens.obj_radius
+make_boundary = messagescreens.make_boundary
+x = messagescreens.x
+y = messagescreens.y
+hover_col = messagescreens.hover_col
+click_col = messagescreens.click_col
+select_col = messagescreens.select_col
+win = messagescreens.win
+boundary = messagescreens.boundary
+brownian_motion = messagescreens.brownian_motion
+GREY = messagescreens.GREY
+GREEN = messagescreens.GREEN
+WHITE = messagescreens.WHITE
+guide_screen = messagescreens.guide_screen
+wait_key = messagescreens.wait_key
+stage_screen = messagescreens.stage_screen
+background_col = messagescreens.background_col
+message_screen = messagescreens.message_screen
+score_screen = messagescreens.score_screen
+user_info = messagescreens.user_info
+draw_boundaries = messagescreens.draw_boundaries
+draw_square = messagescreens.draw_square
+fix_draw_time = Tfix = messagescreens.Tfix
+flash_time = Tfl = messagescreens.Tfl
+animation_time = Tani = messagescreens.Tani
+answer_time = Tans = messagescreens.Tans
+feedback_time = 1
+draw_square2 = messagescreens.draw_square2
+fixation_screen = messagescreens.fixation_screen
+flash_targets = messagescreens.flash_targets
+animate = messagescreens.animate
+static_draw = messagescreens.static_draw
+correct_txt = messagescreens.correct_txt
+user_break_screen = messagescreens.user_break_screen
+play_again_exp = messagescreens.play_again_exp
 
 print('imported!')
 #filterwarnings("ignore") #ignore warnings
@@ -315,7 +353,7 @@ def expected_value(game):
     total = targs + game["dists"]
     EV = 0
     for i in range(targs + 1):
-        numerator = math.factorial(targs) // (math.factorial(i) * math.factorial(targs - i))
+        numerator = factorial(targs) // (math.factorial(i) * math.factorial(targs - i))
         denominator = math.factorial(total) // (math.factorial(targs) * math.factorial(total - targs))
         EV += i * (numerator / denominator)
     """for i in range(targs + 1):
@@ -359,16 +397,16 @@ def d_prime(dprimes, hit_rate, game):
 
         # Approximation of erfcinv using Newton's method
         def f(x, y):
-            return math.erfc(x) - y
+            return erfc(x) - y
 
         def df(x):
-            return -2 / math.sqrt(math.pi) * math.exp(-x**2)
+            return -2 / sqrt(pi) * exp(-x**2)
 
         max_iterations = 100
         tolerance = 1e-10
 
         # Initial guess
-        guess = -math.log(0.5 * (2 - x))
+        guess = -log(0.5 * (2 - x))
 
         # Newton's method iteration
         for _ in range(max_iterations):
@@ -384,8 +422,8 @@ def d_prime(dprimes, hit_rate, game):
         return guess
 
     # calculate z values
-    z_hit = -math.sqrt(2) * erfcinv_approx(2 * hitrate)
-    z_fa = -math.sqrt(2) * erfcinv_approx(2 * farate)
+    z_hit = -sqrt(2) * erfcinv_approx(2 * hitrate)
+    z_fa = -sqrt(2) * erfcinv_approx(2 * farate)
     """z_hit = norm.ppf(hitrate)
     z_fa = norm.ppf(farate)"""
 
@@ -414,7 +452,7 @@ def prepare_files():
     date_sys = str(date.today())
     user_number = user_info("User Number: ")
     name = user_info("Full Name (Please enter your name exactly [e.g. 'John Doe']): ").lower()
-    return "log", "highscore_path", high_score, user_number, name, date_sys, "audio_path", participant_number, "results_path"
+    return "log", "highscore_path", high_score, user_number, name, date_sys, "mot/Sound/", participant_number, "results_path"
 
     """if getattr(sys, 'frozen', False): 
         # The application is frozen (is an executable)

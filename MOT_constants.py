@@ -5,6 +5,8 @@ import pygame as pg
 #from screeninfo import get_monitors
 
 print("here at MOT_constants")
+test2 = 'messagescreens!'
+print(f'in MOT_constants. {test2=}')
 pg.init()
 
 # == Path For Storing Trial Results. ==
@@ -27,7 +29,6 @@ answer_time = Tans = animation_time + 60  # time limit to make answer
 
 feedback_time = 1
 
-print("about to get info!")
 info = pg.display.Info()
 win_width = info.current_w
 win_height = info.current_h

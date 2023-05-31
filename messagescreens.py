@@ -7,19 +7,53 @@ import MOT_constants
 import sys
 #import pylsl
 
-print("got messagescreens!")
+test = 5
+print(f'in messagescreens. {test=}')
+print(f"here's test2 from messagescreens: {MOT_constants.test2=}")
+
+Tfix = MOT_constants.Tfix
+Tfl = MOT_constants.Tfl
+Tani = MOT_constants.Tani
+Tans = MOT_constants.Tans
+obj_radius = MOT_constants.obj_radius
+make_boundary = MOT_constants.make_boundary
+boundary = MOT_constants.boundary
+brownian_motion = MOT_constants.brownian_motion
+BLACK = MOT_constants.BLACK
+GREY = MOT_constants.GREY
+win_width = MOT_constants.win_width
+win_height = MOT_constants.win_height
+boundary_size = MOT_constants.boundary_size
+WHITE = MOT_constants.WHITE
+GREEN = MOT_constants.GREEN
+default_color = MOT_constants.default_color
+start_text = MOT_constants.start_text
+med_font = MOT_constants.med_font
+large_font = MOT_constants.large_font
+prac_finished_txt = MOT_constants.prac_finished_txt
+experim_fin_txt = MOT_constants.experim_fin_txt
+start_text = MOT_constants.start_text
+fix_text = MOT_constants.fix_text
+present_text = MOT_constants.present_text
+submit_ans_txt = MOT_constants.submit_ans_txt
+guide_timeup_txt = MOT_constants.guide_timeup_txt
+guide_submit_txt = MOT_constants.guide_submit_txt
+guide_fin_txt = MOT_constants.guide_fin_txt
+input_text = MOT_constants.input_text
+feedback_time = MOT_constants.feedback_time
+
 # == Set window ==
 x, y = 50, 50
 os.environ['SDL_VIDEO_WINDOW_POS'] = "%d,%d" % (x,y)
 # = visual.window.Window(size=win_dimension, fullscr=True, winType='pygame')
-win = pg.display.set_mode(win_dimension, pg.FULLSCREEN)
-pg.display.set_caption(title)
+win = pg.display.set_mode(MOT_constants.win_dimension, pg.FULLSCREEN)
+pg.display.set_caption(MOT_constants.title)
 
 # == Define colors. ==
-background_col = GREY
-hover_col = DARKSLATEGREY
-click_col = GREENYELLOW
-select_col = YELLOW
+background_col = MOT_constants.GREY
+hover_col = MOT_constants.DARKSLATEGREY
+click_col = MOT_constants.GREENYELLOW
+select_col = MOT_constants.YELLOW
 
 # Lab Streaming Layer push (pushes a string to the outlet)
 #def LSL_push(outlet, string):
@@ -27,10 +61,10 @@ select_col = YELLOW
 
 def draw_boundaries(display=win):
     #pg.draw.rect(display, BLACK, pg.Rect(win_width - boundary_size, 0, boundary_size, win_height - boundary_size)) # right
-    pg.draw.rect(display, BLACK, pg.Rect(win_width - boundary_size, 0, boundary_size, win_height)) # right
-    pg.draw.rect(display, BLACK, pg.Rect(0, 0, boundary_size, win_height)) # left
-    pg.draw.rect(display, BLACK, pg.Rect(0, 0, win_width, boundary_size)) # top
-    pg.draw.rect(display, BLACK, pg.Rect(0, win_height - boundary_size, win_width, boundary_size)) # bottom
+    pg.draw.rect(display, MOT_constants.BLACK, pg.Rect(MOT_constants.win_width - MOT_constants.boundary_size, 0, MOT_constants.boundary_size, MOT_constants.win_height)) # right
+    pg.draw.rect(display, MOT_constants.BLACK, pg.Rect(0, 0, MOT_constants.boundary_size, MOT_constants.win_height)) # left
+    pg.draw.rect(display, MOT_constants.BLACK, pg.Rect(0, 0, MOT_constants.win_width, MOT_constants.boundary_size)) # top
+    pg.draw.rect(display, MOT_constants.BLACK, pg.Rect(0, MOT_constants.win_height - MOT_constants.boundary_size, MOT_constants.win_width, MOT_constants.boundary_size)) # bottom
     #pg.display.update()
 
 def wait_key():
@@ -43,19 +77,19 @@ def wait_key():
 def draw_square(outlet, tag, mlist, display=win):
         # -- Function to draw circle onto display
         #outlet.send_event(event_type = tag)
-        pg.draw.rect(display, WHITE, pg.Rect(0, win_height - 20, 20,20))
+        pg.draw.rect(display, MOT_constants.WHITE, pg.Rect(0, MOT_constants.win_height - 20, 20,20))
         if tag == 'CLCK' or tag == 'UCLK' or tag == 'SPCE':
             static_draw(mlist)
         #pg.draw.rect(display, BLACK, pg.Rect(21, win_height - 20, win_width - 21,20))
         if tag == 'FLSH' or (tag[0] == 'F' and tag[1] == 'X'):
             pg.display.flip()
         else:    
-            pg.display.update([pg.Rect(0, win_height - 20, 20,20), None])
+            pg.display.update([pg.Rect(0, MOT_constants.win_height - 20, 20,20), None])
         return pg.time.get_ticks()
 
 def draw_square2(display=win):
         # -- Function to draw circle onto display
-        pg.draw.rect(display, WHITE, pg.Rect(0, win_height - 20, 20,20))
+        pg.draw.rect(display, MOT_constants.WHITE, pg.Rect(0, MOT_constants.win_height - 20, 20,20))
 
 
 
@@ -66,7 +100,7 @@ def flash_targets(dlist, tlist, flash, gametype, outlet, flash_start_record):
     if flash == True:
         play_sound = True
         for t in tlist:
-            t.color = GREEN
+            t.color = MOT_constants.GREEN
             t.draw_circle(win)
             flash = False
         if gametype == 'real':
@@ -74,7 +108,7 @@ def flash_targets(dlist, tlist, flash, gametype, outlet, flash_start_record):
             pass
     else:
         for t in tlist:
-            t.color = default_color
+            t.color = MOT_constants.default_color
             t.draw_circle(win)
     for d in dlist:
         d.draw_circle(win)
@@ -105,16 +139,16 @@ def static_draw(mlist):
     for obj in mlist:
         obj.draw_circle()
 
-def fixation_cross(color=BLACK):
+def fixation_cross(color=MOT_constants.BLACK):
     """function to draw fixation cross"""
-    start_x, end_x = ((win_width/2)-7, (win_height/2)) , ((win_width/2)+7, (win_height/2))
-    start_y, end_y = (win_width/2, (win_height/2)-7), (win_width/2, (win_height/2)+7)
+    start_x, end_x = ((MOT_constants.win_width/2)-7, (MOT_constants.win_height/2)) , ((MOT_constants.win_width/2)+7, (MOT_constants.win_height/2))
+    start_y, end_y = (MOT_constants.win_width/2, (MOT_constants.win_height/2)-7), (MOT_constants.win_width/2, (MOT_constants.win_height/2)+7)
     pg.draw.line(win, color, start_x, end_x, 3)
     pg.draw.line(win, color, start_y, end_y, 3)
 
 def fixation_screen(mlist, gametype, outlet, fix_record, stage):
     """function to present the fixation cross and the objects"""
-    fixation_cross(BLACK)
+    fixation_cross(MOT_constants.BLACK)
     for obj in mlist:
         obj.draw_circle()
     if gametype == 'real' and fix_record == False: # record start of fixation screen
@@ -146,17 +180,17 @@ def msg_to_screen_centered(text, textcolor, textsize, display=win):
     """function to render message to screen centered"""
     too_big = True
     text_x = 0
-    max_w = win_width-(win_width/10)
+    max_w = MOT_constants.win_width-(MOT_constants.win_width/10)
     #while too_big == True:
     text_surface, text_rect = text_objects(text, textcolor, textsize)  # - set variable for text rect object
-    text_rect.center = (win_width/2), (win_height/2)
+    text_rect.center = (MOT_constants.win_width/2), (MOT_constants.win_height/2)
     draw_boundaries()
     display.blit(text_surface, text_rect)
     pg.display.flip()
         #if text_x <= max_w:
          #   too_big = False
 
-def multi_line_message(text, textsize, pos=((win_width-(win_width/10)), win_height), color=BLACK, display=win):
+def multi_line_message(text, textsize, pos=((MOT_constants.win_width-(MOT_constants.win_width/10)), MOT_constants.win_height), color=MOT_constants.BLACK, display=win):
     """function to split text message to multiple lines and blit to display window."""
     # -- Make a list of strings split by the "\n", and each list contains words of that line as elements.
     #font = pg.font.SysFont("arial", textsize)
@@ -173,21 +207,21 @@ def multi_line_message(text, textsize, pos=((win_width-(win_width/10)), win_heig
         font = pg.font.SysFont("arial", textsize)
         words = [word.split(" ") for word in text.splitlines()]
         space_w = font.size(" ")[0]  # .size method returns dimension in width and height. [0] gets the width
-        max_w, max_h = ((win_width-(win_width/10)), win_height)
+        max_w, max_h = ((MOT_constants.win_width-(MOT_constants.win_width/10)), MOT_constants.win_height)
         text_x, text_y = pos
         for line in words:
             for word in line:
                 word_surface = font.render(word, True, color)  # get surface for each word
                 word_w, word_h = word_surface.get_size()  # get size for each word
                 if text_x + word_w >= max_w:  # if the a word exceeds the line length limit
-                    text_x = (win_width/10)  # reset the x
+                    text_x = (MOT_constants.win_width/10)  # reset the x
                     text_y += word_h  # start a new row
                 display.blit(word_surface, (text_x, text_y))  # blit the text onto surface according to pos
                 text_x += word_w + space_w  # force a space between each word
             final_text_x = text_x
-            text_x = (win_width/10)  # reset the x
+            text_x = (MOT_constants.win_width/10)  # reset the x
             text_y += word_h  # start a new row
-        if text_y <= win_height - boundary_size - 20:
+        if text_y <= MOT_constants.win_height - MOT_constants.boundary_size - 20:
             too_big = False
         else: 
             textsize -= 3 # if too big for display then shrink the textsize and try again
@@ -198,34 +232,34 @@ def multi_line_message(text, textsize, pos=((win_width-(win_width/10)), win_heig
 def message_screen(message, num_targ, total, display=win):
     if message == "start":
         display.fill(background_col)
-        multi_line_message(start_text(num_targ, total), med_font, ((win_width - (win_width / 10)), 120))
+        multi_line_message(MOT_constants.start_text(num_targ, total), MOT_constants.med_font, ((MOT_constants.win_width - (MOT_constants.win_width / 10)), 120))
     if message == "not_selected_enough":
-        multi_line_message("Select " + str(num_targ) + " circles!", med_font, (win_width/2, win_height/2))
+        multi_line_message("Select " + str(num_targ) + " circles!", MOT_constants.med_font, (MOT_constants.win_width/2, MOT_constants.win_height/2))
     if message == "timeup":
         display.fill(background_col)
-        msg_to_screen_centered("Time's up! Now resetting", BLACK, large_font)
+        msg_to_screen_centered("Time's up! Now resetting", MOT_constants.BLACK, MOT_constants.large_font)
         pg.display.flip()
     if message == "prac_finished":
         display.fill(background_col)
-        multi_line_message(prac_finished_txt, med_font, ((win_width - (win_width / 10)), 120))
+        multi_line_message(MOT_constants.prac_finished_txt, MOT_constants.med_font, ((MOT_constants.win_width - (MOT_constants.win_width / 10)), 120))
         pg.display.flip()
     if message == "exp_finished":
         display.fill(background_col)
-        multi_line_message(experim_fin_txt, large_font, ((win_width - (win_width / 10)), 150))
+        multi_line_message(MOT_constants.experim_fin_txt, MOT_constants.large_font, ((MOT_constants.win_width - (MOT_constants.win_width / 10)), 150))
         pg.display.flip()
 
 def stage_screen(stage):
     win.fill(background_col)
-    msg_to_screen_centered("Level " + str(stage), BLACK, large_font)
+    msg_to_screen_centered("Level " + str(stage), MOT_constants.BLACK, MOT_constants.large_font)
     pg.display.flip()
     pg.time.delay(1500)
 
 def correct_txt(selected, total, audio_path):
     win.fill(background_col)
     if selected == total:
-        msg_to_screen_centered("Good! " + str(selected) +  " out of " + str(total) + " correct", BLACK, large_font)
+        msg_to_screen_centered("Good! " + str(selected) +  " out of " + str(total) + " correct", MOT_constants.BLACK, MOT_constants.large_font)
     else:
-        msg_to_screen_centered("Sorry... " + str(selected) +  " out of " + str(total) + " correct", BLACK, large_font)
+        msg_to_screen_centered("Sorry... " + str(selected) +  " out of " + str(total) + " correct", MOT_constants.BLACK, MOT_constants.large_font)
     pg.display.flip()
                     # plays sounds
     if selected == total:
@@ -240,45 +274,45 @@ def correct_txt(selected, total, audio_path):
 def guide_screen(call, mlist, selected_targets_list, num_targ, total):
     if call == "start":
         win.fill(background_col)
-        multi_line_message(start_text(num_targ, total), med_font, ((win_width - (win_width / 10)), 120))
+        multi_line_message(MOT_constants.start_text(num_targ, total), MOT_constants.med_font, ((MOT_constants.win_width - (MOT_constants.win_width / 10)), 120))
         pg.display.flip()
     if call == "focus":
         win.fill(background_col)
         fixation_cross()
-        multi_line_message(fix_text, med_font, ((win_width - (win_width / 10)), (win_height / 2 + 30)))
+        multi_line_message(MOT_constants.fix_text, MOT_constants.med_font, ((MOT_constants.win_width - (MOT_constants.win_width / 10)), (MOT_constants.win_height / 2 + 30)))
         pg.display.flip()
     if call == "present":
         win.fill(background_col)
         fixation_cross()
         static_draw(mlist)
-        multi_line_message(present_text(num_targ, total), med_font, ((win_width - (win_width / 10)), (win_height / 2 + 30)))
+        multi_line_message(MOT_constants.present_text(num_targ, total), MOT_constants.med_font, ((MOT_constants.win_width - (MOT_constants.win_width / 10)), (MOT_constants.win_height / 2 + 30)))
         pg.display.flip()
     if call == "answer":
         static_draw(mlist)
-        multi_line_message(submit_ans_txt, med_font, ((win_width - (win_width / 10)), (win_height / 2 + 30)))
+        multi_line_message(MOT_constants.submit_ans_txt, MOT_constants.med_font, ((MOT_constants.win_width - (MOT_constants.win_width / 10)), (MOT_constants.win_height / 2 + 30)))
         pg.display.flip()
     if call == "timeup":
         win.fill(background_col)
-        multi_line_message(guide_timeup_txt, med_font, ((win_width - (win_width / 10)), (win_height / 2 + 30)))
+        multi_line_message(MOT_constants.guide_timeup_txt, MOT_constants.med_font, ((MOT_constants.win_width - (MOT_constants.win_width / 10)), (MOT_constants.win_height / 2 + 30)))
         pg.display.flip()
     if call == "submitted":
         win.fill(background_col)
-        msg_to_screen_centered(guide_submit_txt.format(len(selected_targets_list)), BLACK, large_font)
+        msg_to_screen_centered(MOT_constants.guide_submit_txt.format(len(selected_targets_list)), MOT_constants.BLACK, MOT_constants.large_font)
         pg.display.flip()
     if call == "finished":
         win.fill(background_col)
-        multi_line_message(guide_fin_txt, med_font,((win_width - (win_width / 10)), 120))
+        multi_line_message(MOT_constants.guide_fin_txt, MOT_constants.med_font,((MOT_constants.win_width - (MOT_constants.win_width / 10)), 120))
         pg.display.flip()
 
 def user_break_screen():
     win.fill(background_col)
-    msg_to_screen_centered("You've Earned a Break!... Press F to continue", BLACK, large_font)
+    msg_to_screen_centered("You've Earned a Break!... Press F to continue", MOT_constants.BLACK, MOT_constants.large_font)
     pg.display.flip()
     wait_key()
 
 def score_screen(score):
     win.fill(background_col)
-    msg_to_screen_centered("Score: " + str(score), BLACK, large_font)
+    msg_to_screen_centered("Score: " + str(score), MOT_constants.BLACK, MOT_constants.large_font)
     pg.display.flip()
     pg.time.delay(1500)
 
@@ -310,7 +344,7 @@ def user_info(type):
         if exit == True:
             break
         win.fill(background_col) #display input
-        multi_line_message(input_text() + type + name, large_font, ((win_width - (win_width / 10)), 120))
+        multi_line_message(MOT_constants.input_text() + type + name, MOT_constants.large_font, ((MOT_constants.win_width - (MOT_constants.win_width / 10)), 120))
 
     if exit_key == pg.K_RETURN or exit_key == pg.K_KP_ENTER:
         return name # If the user enters then we proceed with game
@@ -329,25 +363,25 @@ def play_again_exp():
 
 def high_score_info(high_scores):
     win.fill(background_col)
-    multi_line_message(high_scores_info_txt(high_scores), large_font, ((win_width - (win_width / 10)), 40))
+    multi_line_message(MOT_constants.high_scores_info_txt(high_scores), MOT_constants.large_font, ((MOT_constants.win_width - (MOT_constants.win_width / 10)), 40))
     pg.display.flip()
     pg.time.delay(5 * 1000)
 
 def new_high_score(score, i):
     win.fill(background_col)
-    msg_to_screen_centered("New High Score! You are now #" + str(i) + "! Your score: " + str(score), GREEN, med_font + 10)
+    msg_to_screen_centered("New High Score! You are now #" + str(i) + "! Your score: " + str(score), MOT_constants.GREEN, MOT_constants.med_font + 10)
     pg.display.flip()
     pg.time.delay(5 * 1000)
 
 def final_score(score):
     win.fill(background_col)
-    msg_to_screen_centered("Your Final score: " + str(score), BLACK, large_font)
+    msg_to_screen_centered("Your Final score: " + str(score), MOT_constants.BLACK, MOT_constants.large_font)
     pg.display.flip()
     pg.time.delay(5 * 1000)
 
 def mot_screen():
     win.fill(background_col)
-    msg_to_screen_centered("Motion Object Tracking (press F to continue)", BLACK, large_font)
+    msg_to_screen_centered("Motion Object Tracking (press F to continue)", MOT_constants.BLACK, MOT_constants.large_font)
     pg.display.flip()
     wait_key()
 
@@ -366,24 +400,24 @@ def consent_screens():
                 page = page - 1
         if page <= 1:
             page = 1
-            multi_line_message("This is a consent form message", large_font, ((win_width - (win_width / 10)), 40))
+            multi_line_message("This is a consent form message", MOT_constants.large_font, ((MOT_constants.win_width - (MOT_constants.win_width / 10)), 40))
         elif page == 2:
-            multi_line_message("General info/Purpose text", large_font, ((win_width - (win_width / 10)), 40))
+            multi_line_message("General info/Purpose text", MOT_constants.large_font, ((MOT_constants.win_width - (MOT_constants.win_width / 10)), 40))
         elif page == 3:
-            multi_line_message("Procedures and time required", large_font, ((win_width - (win_width / 10)), 40))
+            multi_line_message("Procedures and time required", MOT_constants.large_font, ((MOT_constants.win_width - (MOT_constants.win_width / 10)), 40))
         elif page == 4:
-            multi_line_message("Additional procedures info", large_font, ((win_width - (win_width / 10)), 40))
+            multi_line_message("Additional procedures info", MOT_constants.large_font, ((MOT_constants.win_width - (MOT_constants.win_width / 10)), 40))
         elif page == 5:
-            multi_line_message("Financial info", large_font, ((win_width - (win_width / 10)), 40))
+            multi_line_message("Financial info", MOT_constants.large_font, ((MOT_constants.win_width - (MOT_constants.win_width / 10)), 40))
         elif page == 6:
-            multi_line_message("Risks and Benefits", large_font, ((win_width - (win_width / 10)), 40))
+            multi_line_message("Risks and Benefits", MOT_constants.large_font, ((MOT_constants.win_width - (MOT_constants.win_width / 10)), 40))
         elif page == 7:
-            multi_line_message("Confidentiality", large_font, ((win_width - (win_width / 10)), 40))
+            multi_line_message("Confidentiality", MOT_constants.large_font, ((MOT_constants.win_width - (MOT_constants.win_width / 10)), 40))
         elif page == 8:
-            multi_line_message("Contacts & questions", large_font, ((win_width - (win_width / 10)), 40))
+            multi_line_message("Contacts & questions", MOT_constants.large_font, ((MOT_constants.win_width - (MOT_constants.win_width / 10)), 40))
         else:
             page = 9
-            multi_line_message("Consent", large_font, ((win_width - (win_width / 10)), 40))
+            multi_line_message("Consent", MOT_constants.large_font, ((MOT_constants.win_width - (MOT_constants.win_width / 10)), 40))
         pg.mouse.set_visible(False)
         pg.display.flip()
 
@@ -396,30 +430,30 @@ def consent_screens():
 def guide_screen_nback(call):
     if call == "start":
         win.fill(background_col)
-        multi_line_message(start_text_nback(), med_font, ((win_width - (win_width / 10)), 40))
+        multi_line_message(MOT_constants.start_text_nback(), MOT_constants.med_font, ((MOT_constants.win_width - (MOT_constants.win_width / 10)), 40))
         pg.display.flip()
     if call == "practice":
         win.fill(background_col)
-        multi_line_message(practice_text, large_font,((win_width - (win_width / 10)), 120))
+        multi_line_message(MOT_constants.practice_text, MOT_constants.large_font,((MOT_constants.win_width - (MOT_constants.win_width / 10)), 120))
         pg.display.flip()
     if call == "finished":
         win.fill(background_col)
-        multi_line_message(guide_fin_txt_nback, large_font,((win_width - (win_width / 10)), 120))
+        multi_line_message(MOT_constants.guide_fin_txt_nback, MOT_constants.large_font,((MOT_constants.win_width - (MOT_constants.win_width / 10)), 120))
         pg.display.flip()
     
 def correct_screen(n, correct, fa, total):
     n = str(n)
     win.fill(background_col)
-    msg_to_screen_centered(str(correct) +  " out of " + str(total) + " " + "targets identified with " + str(fa) + " mis-clicks.", BLACK, large_font)
+    msg_to_screen_centered(str(correct) +  " out of " + str(total) + " " + "targets identified with " + str(fa) + " mis-clicks.", MOT_constants.BLACK, MOT_constants.large_font)
     pg.display.flip()
-    pg.time.delay((feedback_time + 2) * 1000)
+    pg.time.delay((MOT_constants.feedback_time + 2) * 1000)
 
 def n_back_screen(n):
     n = str(n)
     win.fill(background_col)
-    msg_to_screen_centered("This is a " + n + "-back task.", BLACK, large_font)
+    msg_to_screen_centered("This is a " + n + "-back task.", MOT_constants.BLACK, MOT_constants.large_font)
     pg.display.flip()
-    pg.time.delay((feedback_time + 1) * 1000)
+    pg.time.delay((MOT_constants.feedback_time + 1) * 1000)
 
 def blank_screen():
     win.fill(background_col)
@@ -428,6 +462,6 @@ def blank_screen():
 
 def nback_screen():
     win.fill(background_col)
-    msg_to_screen_centered("N-back Experiment (press F to continue)", BLACK, large_font)
+    msg_to_screen_centered("N-back Experiment (press F to continue)", MOT_constants.BLACK, MOT_constants.large_font)
     pg.display.flip()
     wait_key()
