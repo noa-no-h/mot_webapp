@@ -28,18 +28,40 @@ from csv import reader
 from numpy import nanmean, nanstd
 from warnings import filterwarnings
 import math
+import logging
+#import gspread
 
 #import pylsl
 
+logging.basicConfig(level=logging.DEBUG)
+logging.warning('A debug message!')
 print("in main after imports")
+
 
 print("here at MOT_constants")
 test2 = 'messagescreens!'
 print(f'in MOT_constants. {test2=}')
 pg.init()
 
-# == Path For Storing Trial Results. ==
-save_path = 'C:\\Users\\Administrator\\psychexperiment\\multiple-object-tracking-paradigm\\results\\'
+#gspread set up
+
+"""credentials = {
+  "type": "service_account",
+  "project_id": "mot-task",
+  "private_key_id": "f6e50ec2d7b43bdb5dd4dfa02834fc40701c148e",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDDLgSsRK7spqfK\nt2ZfuT8gzumO9/OM7LoE3ZdL2/T72/ge1+z6te0EqmD/3By7S2pz0EU9fOEI4wjT\npTRhfXZJ0IpzUfCqpNRzo21Xy7vBf7xdvvuc73S9s5wNbSwmiYMqziSxnqo6ep3l\ngtn38V9yE4oYWg8zolgF6meS7E9H7se6pcmfCO03/6BdFOt/Vy5/4XHRQd/TykYA\n9hEn4D+cDAvDi+Qo98MNhRl5Zf5ixAHHzXeWFSdEwlwfeylUo9QD81bWI4t2jTsw\nlPZKvs5mqX2NMpt9fLnQHi6TIdxoSVk/55RLUT1DwnnItosNFzjO3q5RSZ4ld8Qp\nhZeeWlEVAgMBAAECggEAGQ8aOfzqgYdHITuJSQ55aK6wJXM3wZbuLiw+Hdb8fe6o\nzVr3OdwsNW5jnE4IIVLmNL7feOzE3rV5f2TlVAP98S21bOdvERWvEjbAFebaMRaD\nmnyoBObok+eQyFeFNOBwZwlHBEgE/pOaHKq/bfo/QR/5mbVMYNp91yqYiDBPYIJy\nEsjH85H91+WYhwb/RudZuJKEYz2GStk6oGNos8IKohqDQjSr4rWWswyDeGF4W1ue\nu68+/qZViRipgqnK0TRcAFMfvwZc2OFDVMxHy96LLDLpUxb3ovxExTUEFBaedCA+\njXnYfodC3alekYWM84Y2jhKeRvYLk4hZeOqvmcoLqQKBgQDncw2zGhldd+9dtkzC\nDE2fbSv/6mf11xpuBjY2Yx11m3D/Pz76EGXdhlougmPoyU4mrH+GS0r0q7Fe1Qsi\nu9eNsBLOPd6c/Z99NKFp8LaRnztPhagbXrVP7jUhVpzIZn+6iKWmaw7KzSyYx+l+\nISVn1x1tWKxrGKeXx3hO5C7e2QKBgQDX4hJbb3sHyUTQQknrzAZ9ZCIGG3U+5fd4\ns4wXjURDoLfZlkahBQ+ZOA6pEYZkxPnP5rGCVj4Gpte6JDUf131yK+U3gEyKpFdY\n1fhxmKiO9rFB9xKLcIpQMn8RDTA69z8+WsE0Jyvl61M0PZAWiokKCw/GznN0rGpI\nBAE0ev0WnQKBgQDbcSmnC3LLPSC1cFfcj/+0zbSvAteorla/xKH39QeEb2m2iIe0\nXoHGhFDS0gvaNaskXd7XPGIIExWrvUC+oOzhyPQ7mUuM+6cQ9iqooHLpJNj+L9JQ\niP5Nl6PGRTGHjC9Ec7TjUZQH0nqbLMgEL3cgukOLXkyzif+0l4pI+m46GQKBgEAf\nTCiQglCbva7GIcLCBSN1fI2n1jlqgQj++5t7QE1+DV25vxzQrgNqnSAmrm57+19/\nPDZke2PqZqVJX+YnUYF5/Elx+Eot6ive0j6bg2WDbL8VLhLwyIRtm0RrUGoTSlux\nBTYCdI2ESmB38LZhS7cJ9hOs+qorFB5z4g++gDIZAoGAV2zmO+sQOaPXldxEu/M6\nVZZVaW15P/sj6Nah+JXxtveyX2ClJbA/Q10jUM9vukn+LCNp0Y593PgCXco/VhzG\nghN8DWk0KmtIz/hf1agxNckymPXbLkKZP5z4GN84tRhxZPhIybS+xmvxghz8jexx\n0tX7hxcMv6ziPteMQEjcFH0=\n-----END PRIVATE KEY-----\n",
+  "client_email": "mot-data-tracker@mot-task.iam.gserviceaccount.com",
+  "client_id": "106152976936004357644",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/mot-data-tracker%40mot-task.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}
+gc = gspread.service_account_from_dict(credentials)
+mot_sh = gc.open('mot')
+print(mot_sh.sheet1.get('A1'))"""
+
 """
 Define the object class attributes
 """
@@ -108,8 +130,9 @@ fix_text = "First, you will see this cross. Please focus your gaze here. \nPress
 
 practice_text = "You will now practice with a 1-back task and a 2-back task. \n\nPress F to continue."
 def input_text():
+    
     return "Please enter the requested information. Then press Enter or Return to continue. Press ESC to exit or inform the observer of your decision. \n\n"
-
+    
 def present_text(num_targ, total): 
     return "Now, " + str(total) + " circles will appear randomly around the screen. " + str(num_targ) + " random " \
     "circles will flash briefly. Remember which circles flashed. The cross will disappear, and all circles " \
@@ -271,12 +294,13 @@ def draw_boundaries(display=win):
     pg.draw.rect(display, BLACK, pg.Rect(0, win_height - boundary_size, win_width, boundary_size)) # bottom
     #pg.display.update()
 
-def wait_key():
+async def wait_key():
     """function to wait key press"""
     while True:
         for event in pg.event.get():
             if event.type == pg.KEYDOWN and event.key == pg.K_f:
                 return
+        await asyncio.sleep(0)
 
 def draw_square(outlet, tag, mlist, display=win):
         # -- Function to draw circle onto display
@@ -399,6 +423,8 @@ def multi_line_message(text, textsize, pos=((win_width-(win_width/10)), win_heig
     # -- Make a list of strings split by the "\n", and each list contains words of that line as elements.
     #font = pg.font.SysFont("arial", textsize)
     #words = [word.split(" ") for word in text.splitlines()]
+    print(f'{text=} {textsize=} {pos=} {color=}')
+    
     too_big = True 
     final_text_x = 0
 
@@ -432,6 +458,7 @@ def multi_line_message(text, textsize, pos=((win_width-(win_width/10)), win_heig
             win.fill(background_col)
         draw_boundaries()
     pg.display.flip()
+    #assert 1 == 0 This works
 
 def message_screen(message, num_targ, total, display=win):
     if message == "start":
@@ -475,7 +502,7 @@ def correct_txt(selected, total, audio_path):
     pg.time.delay(2000)
     pg.mixer.music.unload()
 
-def guide_screen(call, mlist, selected_targets_list, num_targ, total):
+async def guide_screen(call, mlist, selected_targets_list, num_targ, total):
     if call == "start":
         win.fill(background_col)
         multi_line_message(start_text(num_targ, total), med_font, ((win_width - (win_width / 10)), 120))
@@ -508,6 +535,8 @@ def guide_screen(call, mlist, selected_targets_list, num_targ, total):
         multi_line_message(guide_fin_txt, med_font,((win_width - (win_width / 10)), 120))
         pg.display.flip()
 
+    await asyncio.sleep(0)
+
 def user_break_screen():
     win.fill(background_col)
     msg_to_screen_centered("You've Earned a Break!... Press F to continue", BLACK, large_font)
@@ -526,14 +555,17 @@ def is_valid(num):
     else:
         return False
 
-def user_info(type):
+async def user_info(type):
     pg.mouse.set_visible(False)
     pg.display.flip()
     name = "" # prepping variables
     exit = False
-
+    
     while True:
         for event in pg.event.get():
+            print(event)
+            #assert 1 == 0
+            
             if event.type == pg.KEYDOWN:
                 if event.key == pg.K_ESCAPE or event.key == pg.K_KP_ENTER or event.key == pg.K_RETURN:
                     exit_key = event.key
@@ -545,25 +577,35 @@ def user_info(type):
                         name = name + chr(event.key).upper()
                     else:
                         name = name + chr(event.key)
+        
+        
         if exit == True:
             break
         win.fill(background_col) #display input
         multi_line_message(input_text() + type + name, large_font, ((win_width - (win_width / 10)), 120))
 
+        await asyncio.sleep(0)
+        #assert 1==0 reaches here and interesting things happen!
+    
     if exit_key == pg.K_RETURN or exit_key == pg.K_KP_ENTER:
+        #assert 1 == 0 it doesn't reach here
+        multi_line_message("leaving now!" + type + name, large_font, ((win_width - (win_width / 10)), 120))
         return name # If the user enters then we proceed with game
     else: # otherwise we quit the game
         pg.quit()
         sys.exit()
+    
+    #assert 1 == 0 it doesn't reach here
+    
 
-def play_again_exp():
-    response = user_info("Play again? (type \'y\' for yes or \'n\' for no): ")
+async def play_again_exp():
+    response = await user_info("Play again? (type \'y\' for yes or \'n\' for no): ")
     while True:
         if response.lower() == 'y':
             return True
         if response.lower() == 'n':
             return False
-        response = user_info("Play again? (type \'y\' for yes or \'n\' for no): ")
+        response = await user_info("Play again? (type \'y\' for yes or \'n\' for no): ")
 
 def high_score_info(high_scores):
     win.fill(background_col)
@@ -632,6 +674,7 @@ def consent_screens():
 #=======================================================================================
 
 def guide_screen_nback(call):
+    #assert 1==0 doesn't reach here
     if call == "start":
         win.fill(background_col)
         multi_line_message(start_text_nback(), med_font, ((win_width - (win_width / 10)), 40))
@@ -902,25 +945,32 @@ def record_response(participant_number, user_number, name, response_time, targs_
     log.write(header_line)
 
 # == plays proper welcome messages based on gametype ==
-def welcome_messages(game, gametype, high_score):
+async def welcome_messages(game, gametype, high_score):
     num_targs = game["targs"]
     num_dists = game["dists"]
     total = num_targs + num_dists
     
     if gametype == 'guide':
-        guide_screen("start", [], [], num_targs, total)
-        wait_key()
+        #assert 1 ==0 reaches here
+        await guide_screen("start", [], [], num_targs, total)
+        #assert 1 ==0 reaches here
+        await wait_key()
 
         # == Fixation cross screen ==
-        guide_screen("focus", [], [], num_targs, total)
-        wait_key()
+        await guide_screen("focus", [], [], num_targs, total)
+        await wait_key()
 
         # == Present cross and circles screen ==
-        guide_screen("present", [], [], num_targs, total)
-        wait_key()
+        await guide_screen("present", [], [], num_targs, total)
+        await wait_key()
+
+        await asyncio.sleep(0)
     if gametype == 'real':
+        #assert 1 ==0
         #high_score_info(high_score)
         stage_screen(game["stage"] + 1)
+
+    #assert 1 ==0 doesn't reach here
 
 # == plays proper end messages based on gametype ==
 def end_messages(game, gametype, recorder):
@@ -1035,7 +1085,7 @@ def d_prime(dprimes, hit_rate, game):
     dprimes.append(dp) # add to list
     return dprimes
 
-def update_stage(selected_targ, game, gametype, score, consecutive):
+async def update_stage(selected_targ, game, gametype, score, consecutive):
     if len(selected_targ) == game["targs"]:
         game["stage"] += success
         consecutive += 1
@@ -1047,17 +1097,25 @@ def update_stage(selected_targ, game, gametype, score, consecutive):
             game["stage"] = 0
     if gametype == 'real': 
         score_screen(score) # display score
+    await asyncio.sleep(0)
     return game, score, consecutive
+    
 
 # == prepares where we store data such as results and high scores ==
-def prepare_files():
+async def prepare_files():
     participant_number = 1
     high_score = [0] * 5 # get top 5 high scores
     date_sys = str(date.today())
-    user_number = user_info("User Number: ")
-    name = user_info("Full Name (Please enter your name exactly [e.g. 'John Doe']): ").lower()
-    return "log", "highscore_path", high_score, user_number, name, date_sys, "mot/Sound/", participant_number, "results_path"
+    #assert 1 == 0
+    #reaches here
+    user_number = await user_info("User Number: ")
+    case_name = await user_info("Full Name (Please enter your name exactly [e.g. 'John Doe']): ")
+    name = case_name.lower()
+    print('is this the problem?')
+    #assert 1 == 0 reaches here
+    #return high_score, user_number, name, date_sys, "mot/Sound/", participant_number
 
+    return high_score, user_number, name, date_sys, "mot/Sound/", participant_number
     """if getattr(sys, 'frozen', False): 
         # The application is frozen (is an executable)
         file_path = os.path.dirname(sys.executable)
@@ -1123,12 +1181,15 @@ def prepare_files():
     audio_path = os.path.join(file_path, 'Sound')
     return log, highscore_path, high_score, user_number, name, date_sys, audio_path, participant_number, results_path"""
 
+    
+
 # == Runs Real Trials (same as practice but user performance is saved) ==
-def trials(game, recorder, gametype, time_or_trials, high_score, audio_path, participant_number, user_number, name, outlet):
+async def trials(game, recorder, gametype, time_or_trials, high_score, audio_path, participant_number, user_number, name, outlet):
+    #assert 1 == 0 it doesn't reach here
     #outlet.resync()
     # == Messages to user based on gametype ==
-    welcome_messages(game, gametype, high_score)
-
+    await welcome_messages(game, gametype, high_score)
+    #assert 1 ==0 reaches here
     # == Generates the game ==
     dt = 0
     hit_rates = []
@@ -1154,9 +1215,11 @@ def trials(game, recorder, gametype, time_or_trials, high_score, audio_path, par
     mvmt_start = False
     mvmt_stop = False
 
-
+    
     # == Controls the "game" part of the game ==
     while True:
+        #print(" line 1163!")
+        #log('line 1180')
         
         num_targs = game["targs"]
         pg.time.Clock().tick_busy_loop(FPS)  # = Set FPS
@@ -1166,9 +1229,10 @@ def trials(game, recorder, gametype, time_or_trials, high_score, audio_path, par
 
         selected_list = []  # - list for all selected objects
         selected_targ = []  # - list for all SELECTED TARGETS
-
+        #assert 1 == 0
         # == Controls responses to user input ===
         for event in pg.event.get():
+            
             if event.type == pg.QUIT:
                 #if gametype == 'real':
                 square_time = draw_square(outlet, 'STOP', list_m)
@@ -1283,7 +1347,7 @@ def trials(game, recorder, gametype, time_or_trials, high_score, audio_path, par
                         if pg.time.get_ticks() - insuf_sel_time > 500:
                             insufficient_selections = False
                     if gametype == 'guide':
-                        guide_screen("answer",list_m, selected_targ, num_targs, num_targs + game["dists"]) 
+                        await guide_screen("answer",list_m, selected_targ, num_targs, num_targs + game["dists"]) 
                     else: 
                         static_draw(list_m)
                     pg.display.flip()
@@ -1376,12 +1440,16 @@ def trials(game, recorder, gametype, time_or_trials, high_score, audio_path, par
             else:
                 return "complete" # signifies succesful completion of prac/guide trials
         
+        await asyncio.sleep(0)
 
         # total gameplay time (for use in giving users a break)
         total_time = pg.time.get_ticks() - start_time # current time minus the time at which we started 
 
 # == Main Loop.  ==
 async def main(unified):
+    
+    print("main loop!")
+    #assert 1 == 0
     mot_play_again = True
     while mot_play_again == True:
         # == Initiate pygame and collect user information ==
@@ -1389,8 +1457,10 @@ async def main(unified):
         #pg.init()
         print("initted!")
         pg.mixer.init()
-        log, highscore_path, high_score, user_number, name, date_sys, audio_path, participant_number, results_path = prepare_files()
-        
+        #high_score, user_number, name, date_sys, audio_path, participant_number = await prepare_files()
+        await asyncio.sleep(0)
+        high_score, user_number, name, date_sys, audio_path, participant_number = await prepare_files()
+        #assert 1 == 0 #reaches here
 
         # prepare lab streaming layer functionality
         #info = pylsl.StreamInfo('MOT_stream', 'Markers', 1, 0, 'string', '_ptcpt_' + str(participant_number) + '_' + date_sys)
@@ -1418,14 +1488,15 @@ async def main(unified):
         game_guide = update_game(0)
         game_prac = update_game(0)
         game_real = update_game(0)
+        #assert 1==0 #reaches here
     
         # == Start guide ==
-        key = trials(game_guide, log, 'guide', guide_trials, high_score, audio_path, participant_number, user_number, name, outlet)
-
+        key = await trials(game_guide, log, 'guide', guide_trials, high_score, audio_path, participant_number, user_number, name, outlet)
+        assert 1 ==0
         # == Start practice ==
         if key == 'k' or key == 'complete':
-            key = trials(game_prac, log, 'practice', prac_trials, high_score, audio_path, participant_number, user_number, name, outlet)
-
+            key = await trials(game_prac, log, 'practice', prac_trials, high_score, audio_path, participant_number, user_number, name, outlet)
+        #assert 1==0 doesn't reach here
         # == Start real trials, recording responses ==
         if key == 'k' or key == 'complete':
             #outlet.resync()
@@ -1472,7 +1543,7 @@ async def main(unified):
         header_line += '\n'
         f.write(header_line)
         f.close()
-
+        
         # allow user to play again without rerunning program
         pg.mixer.quit()
         mot_play_again = play_again_exp()
