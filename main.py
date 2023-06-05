@@ -1229,9 +1229,10 @@ async def trials(game, recorder, gametype, time_or_trials, high_score, audio_pat
 
         selected_list = []  # - list for all selected objects
         selected_targ = []  # - list for all SELECTED TARGETS
-        #assert 1 == 0
+        #assert 1 == 0 reaches here
         # == Controls responses to user input ===
         for event in pg.event.get():
+            print(event)
             
             if event.type == pg.QUIT:
                 #if gametype == 'real':
@@ -1270,8 +1271,9 @@ async def trials(game, recorder, gametype, time_or_trials, high_score, audio_pat
                             insufficient_selections = True
                             insuf_sel_time = pg.time.get_ticks()
             for obj in list_m:
+                #THE PROGRAM IS BREAKING SOMEWHERE IN HERE
                 if obj.in_circle(mx, my):
-                    if event.type == pg.MOUSEMOTION:
+                    if event.type == pg.MOUSEMOTION: 
                         if not obj.isClicked and not obj.isSelected:
                             obj.state_control("hovered")
                     if event.type == pg.MOUSEBUTTONDOWN:
@@ -1295,7 +1297,6 @@ async def trials(game, recorder, gametype, time_or_trials, high_score, audio_pat
                     if event.type == pg.MOUSEBUTTONUP:
                         if obj.isClicked and not obj.isSelected:
                             obj.state_control("neutral")
-
         # == Grabs the time after each frame and total time passed in the trial ==
         t1 = pg.time.get_ticks()
         dt = (t1 - t0)/1000
@@ -1349,12 +1350,12 @@ async def trials(game, recorder, gametype, time_or_trials, high_score, audio_pat
                     if gametype == 'guide':
                         await guide_screen("answer",list_m, selected_targ, num_targs, num_targs + game["dists"]) 
                     else: 
-                        static_draw(list_m)
+                        await static_draw(list_m)
                     pg.display.flip()
                 elif Tans + 2 < dt:
                     pg.mouse.set_visible(False)
                     timeup = True
-
+            #assert 1 ==0 makes it here
             if submitted: # -- if the user submits answers properly
                 total_time = pg.time.get_ticks() - start_time # total time in milliseconds since real trials began
                 # == message screen stating performance on that trial ==
@@ -1441,9 +1442,11 @@ async def trials(game, recorder, gametype, time_or_trials, high_score, audio_pat
                 return "complete" # signifies succesful completion of prac/guide trials
         
         await asyncio.sleep(0)
+    
 
         # total gameplay time (for use in giving users a break)
         total_time = pg.time.get_ticks() - start_time # current time minus the time at which we started 
+    
 
 # == Main Loop.  ==
 async def main(unified):
