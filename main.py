@@ -202,16 +202,15 @@ RED = [255, 50, 50]
 Generate random x and y coordinates within the window boundary
 """
 boundary_size: int = 30 # how large the boundary is
+boundary = None
 
-def make_boundary(win_height, win_width):
+async def make_boundary(win_height, win_width):
     boundary_location = ['up', 'down', 'left', 'right']
     boundary_coord = [obj_radius + boundary_size, (win_height - (obj_radius + boundary_size)), obj_radius + boundary_size, (win_width - (obj_radius + boundary_size))]
+    global boundary
     boundary = dict(zip(boundary_location, boundary_coord))
     listX, listY = [], []
     rangeX, rangeY = range(boundary['left'], boundary['right']), range(boundary['up'], boundary['down'])
-    return boundary
-
-boundary = make_boundary(win_height, win_width)
 
 """
 Define session information for recording purposes
@@ -220,7 +219,7 @@ session_info = {'Observer': 'Type observer initials', 'Participant': 'Type parti
 date_string = time.strftime("%b_%d_%H%M", time.localtime())  # add the current time
 
 
-def brownian_motion(C1, C2):
+async def brownian_motion(C1, C2):
     """ ===== FUNCTION TO CALCULATE BROWNIAN MOTION ===== """
     c1_spd = math.sqrt((C1.dx ** 2) + (C1.dy ** 2))
     diff_x = -(C1.x - C2.x)
@@ -286,7 +285,7 @@ select_col = YELLOW
 #def LSL_push(outlet, string):
 #    pylsl.StreamOutlet.push_sample(outlet, [string])
 
-def draw_boundaries(display=win):
+async def draw_boundaries(display=win):
     #pg.draw.rect(display, BLACK, pg.Rect(win_width - boundary_size, 0, boundary_size, win_height - boundary_size)) # right
     pg.draw.rect(display, BLACK, pg.Rect(win_width - boundary_size, 0, boundary_size, win_height)) # right
     pg.draw.rect(display, BLACK, pg.Rect(0, 0, boundary_size, win_height)) # left
@@ -302,12 +301,12 @@ async def wait_key():
                 return
         await asyncio.sleep(0)
 
-def draw_square(outlet, tag, mlist, display=win):
+async def draw_square(outlet, tag, mlist, display=win):
         # -- Function to draw circle onto display
         #outlet.send_event(event_type = tag)
         pg.draw.rect(display, WHITE, pg.Rect(0, win_height - 20, 20,20))
         if tag == 'CLCK' or tag == 'UCLK' or tag == 'SPCE':
-            static_draw(mlist)
+            await static_draw(mlist)
         #pg.draw.rect(display, BLACK, pg.Rect(21, win_height - 20, win_width - 21,20))
         if tag == 'FLSH' or (tag[0] == 'F' and tag[1] == 'X'):
             pg.display.flip()
@@ -315,13 +314,14 @@ def draw_square(outlet, tag, mlist, display=win):
             pg.display.update([pg.Rect(0, win_height - 20, 20,20), None])
         return pg.time.get_ticks()
 
-def draw_square2(display=win):
+async def draw_square2(display=win):
         # -- Function to draw circle onto display
         pg.draw.rect(display, WHITE, pg.Rect(0, win_height - 20, 20,20))
+        return True
 
 
 
-def flash_targets(dlist, tlist, flash, gametype, outlet, flash_start_record):
+async def flash_targets(dlist, tlist, flash, gametype, outlet, flash_start_record):
     """function to flash targets"""
     play_sound = False
     fixation_cross()
@@ -329,7 +329,7 @@ def flash_targets(dlist, tlist, flash, gametype, outlet, flash_start_record):
         play_sound = True
         for t in tlist:
             t.color = GREEN
-            t.draw_circle(win)
+            await t.draw_circle(win)
             flash = False
         if gametype == 'real':
             #draw_square(outlet, 'FLS', 0)
@@ -337,9 +337,9 @@ def flash_targets(dlist, tlist, flash, gametype, outlet, flash_start_record):
     else:
         for t in tlist:
             t.color = default_color
-            t.draw_circle(win)
+            await t.draw_circle(win)
     for d in dlist:
-        d.draw_circle(win)
+        await d.draw_circle(win)
     if flash_start_record == False and gametype == 'real': # record start of flash screen
         #LSL_push(outlet, 'FLSH0') # flash start
         draw_square(outlet, 'FLS', 0)
@@ -350,11 +350,11 @@ def flash_targets(dlist, tlist, flash, gametype, outlet, flash_start_record):
     pg.display.flip()
     return flash, flash_start_record
 
-def animate(dlist, tlist, mlist, gametype, outlet, mvmt_start):
+async def animate(dlist, tlist, mlist, gametype, outlet, mvmt_start):
     """function to move or animate objects on screen"""
     for m in mlist:
         m.detect_collision(mlist)
-        m.draw_circle(win)
+        await m.draw_circle(win)
         if gametype == 'real' and mvmt_start == False:
             draw_square(outlet, 'MVE0', 0)
             #LSL_push(outlet, 'MVE') #start move
@@ -362,10 +362,10 @@ def animate(dlist, tlist, mlist, gametype, outlet, mvmt_start):
     pg.display.flip()
     return mvmt_start
 
-def static_draw(mlist):
+async def static_draw(mlist):
     """function for static object draw"""
     for obj in mlist:
-        obj.draw_circle()
+        await obj.draw_circle()
 
 def fixation_cross(color=BLACK):
     """function to draw fixation cross"""
@@ -418,7 +418,7 @@ def msg_to_screen_centered(text, textcolor, textsize, display=win):
         #if text_x <= max_w:
          #   too_big = False
 
-def multi_line_message(text, textsize, pos=((win_width-(win_width/10)), win_height), color=BLACK, display=win):
+async def multi_line_message(text, textsize, pos=((win_width-(win_width/10)), win_height), color=BLACK, display=win):
     """function to split text message to multiple lines and blit to display window."""
     # -- Make a list of strings split by the "\n", and each list contains words of that line as elements.
     #font = pg.font.SysFont("arial", textsize)
@@ -460,23 +460,23 @@ def multi_line_message(text, textsize, pos=((win_width-(win_width/10)), win_heig
     pg.display.flip()
     #assert 1 == 0 This works
 
-def message_screen(message, num_targ, total, display=win):
+async def message_screen(message, num_targ, total, display=win):
     if message == "start":
         display.fill(background_col)
-        multi_line_message(start_text(num_targ, total), med_font, ((win_width - (win_width / 10)), 120))
+        await multi_line_message(start_text(num_targ, total), med_font, ((win_width - (win_width / 10)), 120))
     if message == "not_selected_enough":
-        multi_line_message("Select " + str(num_targ) + " circles!", med_font, (win_width/2, win_height/2))
+        await multi_line_message("Select " + str(num_targ) + " circles!", med_font, (win_width/2, win_height/2))
     if message == "timeup":
         display.fill(background_col)
         msg_to_screen_centered("Time's up! Now resetting", BLACK, large_font)
         pg.display.flip()
     if message == "prac_finished":
         display.fill(background_col)
-        multi_line_message(prac_finished_txt, med_font, ((win_width - (win_width / 10)), 120))
+        await multi_line_message(prac_finished_txt, med_font, ((win_width - (win_width / 10)), 120))
         pg.display.flip()
     if message == "exp_finished":
         display.fill(background_col)
-        multi_line_message(experim_fin_txt, large_font, ((win_width - (win_width / 10)), 150))
+        await multi_line_message(experim_fin_txt, large_font, ((win_width - (win_width / 10)), 150))
         pg.display.flip()
 
 def stage_screen(stage):
@@ -505,26 +505,26 @@ def correct_txt(selected, total, audio_path):
 async def guide_screen(call, mlist, selected_targets_list, num_targ, total):
     if call == "start":
         win.fill(background_col)
-        multi_line_message(start_text(num_targ, total), med_font, ((win_width - (win_width / 10)), 120))
+        await multi_line_message(start_text(num_targ, total), med_font, ((win_width - (win_width / 10)), 120))
         pg.display.flip()
     if call == "focus":
         win.fill(background_col)
         fixation_cross()
-        multi_line_message(fix_text, med_font, ((win_width - (win_width / 10)), (win_height / 2 + 30)))
+        await multi_line_message(fix_text, med_font, ((win_width - (win_width / 10)), (win_height / 2 + 30)))
         pg.display.flip()
     if call == "present":
         win.fill(background_col)
         fixation_cross()
-        static_draw(mlist)
-        multi_line_message(present_text(num_targ, total), med_font, ((win_width - (win_width / 10)), (win_height / 2 + 30)))
+        await static_draw(mlist)
+        await multi_line_message(present_text(num_targ, total), med_font, ((win_width - (win_width / 10)), (win_height / 2 + 30)))
         pg.display.flip()
     if call == "answer":
-        static_draw(mlist)
-        multi_line_message(submit_ans_txt, med_font, ((win_width - (win_width / 10)), (win_height / 2 + 30)))
+        await static_draw(mlist)
+        await multi_line_message(submit_ans_txt, med_font, ((win_width - (win_width / 10)), (win_height / 2 + 30)))
         pg.display.flip()
     if call == "timeup":
         win.fill(background_col)
-        multi_line_message(guide_timeup_txt, med_font, ((win_width - (win_width / 10)), (win_height / 2 + 30)))
+        await multi_line_message(guide_timeup_txt, med_font, ((win_width - (win_width / 10)), (win_height / 2 + 30)))
         pg.display.flip()
     if call == "submitted":
         win.fill(background_col)
@@ -532,7 +532,7 @@ async def guide_screen(call, mlist, selected_targets_list, num_targ, total):
         pg.display.flip()
     if call == "finished":
         win.fill(background_col)
-        multi_line_message(guide_fin_txt, med_font,((win_width - (win_width / 10)), 120))
+        await multi_line_message(guide_fin_txt, med_font,((win_width - (win_width / 10)), 120))
         pg.display.flip()
 
     await asyncio.sleep(0)
@@ -582,14 +582,14 @@ async def user_info(type):
         if exit == True:
             break
         win.fill(background_col) #display input
-        multi_line_message(input_text() + type + name, large_font, ((win_width - (win_width / 10)), 120))
+        await multi_line_message(input_text() + type + name, large_font, ((win_width - (win_width / 10)), 120))
 
         await asyncio.sleep(0)
         #assert 1==0 reaches here and interesting things happen!
     
     if exit_key == pg.K_RETURN or exit_key == pg.K_KP_ENTER:
         #assert 1 == 0 it doesn't reach here
-        multi_line_message("leaving now!" + type + name, large_font, ((win_width - (win_width / 10)), 120))
+        await multi_line_message("leaving now!" + type + name, large_font, ((win_width - (win_width / 10)), 120))
         return name # If the user enters then we proceed with game
     else: # otherwise we quit the game
         pg.quit()
@@ -607,32 +607,32 @@ async def play_again_exp():
             return False
         response = await user_info("Play again? (type \'y\' for yes or \'n\' for no): ")
 
-def high_score_info(high_scores):
+async def high_score_info(high_scores):
     win.fill(background_col)
-    multi_line_message(high_scores_info_txt(high_scores), large_font, ((win_width - (win_width / 10)), 40))
+    await multi_line_message(high_scores_info_txt(high_scores), large_font, ((win_width - (win_width / 10)), 40))
     pg.display.flip()
     pg.time.delay(5 * 1000)
 
-def new_high_score(score, i):
+async def new_high_score(score, i):
     win.fill(background_col)
     msg_to_screen_centered("New High Score! You are now #" + str(i) + "! Your score: " + str(score), GREEN, med_font + 10)
     pg.display.flip()
     pg.time.delay(5 * 1000)
 
-def final_score(score):
+async def final_score(score):
     win.fill(background_col)
     msg_to_screen_centered("Your Final score: " + str(score), BLACK, large_font)
     pg.display.flip()
     pg.time.delay(5 * 1000)
 
-def mot_screen():
+async def mot_screen():
     win.fill(background_col)
     msg_to_screen_centered("Motion Object Tracking (press F to continue)", BLACK, large_font)
     pg.display.flip()
     wait_key()
 
 # deprecated... turns out that we do not need it
-def consent_screens():
+async def consent_screens():
     page = 1
     consented = False
     proceed = False
@@ -646,24 +646,24 @@ def consent_screens():
                 page = page - 1
         if page <= 1:
             page = 1
-            multi_line_message("This is a consent form message", large_font, ((win_width - (win_width / 10)), 40))
+            await multi_line_message("This is a consent form message", large_font, ((win_width - (win_width / 10)), 40))
         elif page == 2:
-            multi_line_message("General info/Purpose text", large_font, ((win_width - (win_width / 10)), 40))
+            await multi_line_message("General info/Purpose text", large_font, ((win_width - (win_width / 10)), 40))
         elif page == 3:
-            multi_line_message("Procedures and time required", large_font, ((win_width - (win_width / 10)), 40))
+            await multi_line_message("Procedures and time required", large_font, ((win_width - (win_width / 10)), 40))
         elif page == 4:
-            multi_line_message("Additional procedures info", large_font, ((win_width - (win_width / 10)), 40))
+            await multi_line_message("Additional procedures info", large_font, ((win_width - (win_width / 10)), 40))
         elif page == 5:
-            multi_line_message("Financial info", large_font, ((win_width - (win_width / 10)), 40))
+            await multi_line_message("Financial info", large_font, ((win_width - (win_width / 10)), 40))
         elif page == 6:
-            multi_line_message("Risks and Benefits", large_font, ((win_width - (win_width / 10)), 40))
+            await multi_line_message("Risks and Benefits", large_font, ((win_width - (win_width / 10)), 40))
         elif page == 7:
-            multi_line_message("Confidentiality", large_font, ((win_width - (win_width / 10)), 40))
+            await multi_line_message("Confidentiality", large_font, ((win_width - (win_width / 10)), 40))
         elif page == 8:
-            multi_line_message("Contacts & questions", large_font, ((win_width - (win_width / 10)), 40))
+            await multi_line_message("Contacts & questions", large_font, ((win_width - (win_width / 10)), 40))
         else:
             page = 9
-            multi_line_message("Consent", large_font, ((win_width - (win_width / 10)), 40))
+            await multi_line_message("Consent", large_font, ((win_width - (win_width / 10)), 40))
         pg.mouse.set_visible(False)
         pg.display.flip()
 
@@ -673,41 +673,41 @@ def consent_screens():
 #=======================================================================================
 #=======================================================================================
 
-def guide_screen_nback(call):
+async def guide_screen_nback(call):
     #assert 1==0 doesn't reach here
     if call == "start":
         win.fill(background_col)
-        multi_line_message(start_text_nback(), med_font, ((win_width - (win_width / 10)), 40))
+        await multi_line_message(start_text_nback(), med_font, ((win_width - (win_width / 10)), 40))
         pg.display.flip()
     if call == "practice":
         win.fill(background_col)
-        multi_line_message(practice_text, large_font,((win_width - (win_width / 10)), 120))
+        await multi_line_message(practice_text, large_font,((win_width - (win_width / 10)), 120))
         pg.display.flip()
     if call == "finished":
         win.fill(background_col)
-        multi_line_message(guide_fin_txt_nback, large_font,((win_width - (win_width / 10)), 120))
+        await multi_line_message(guide_fin_txt_nback, large_font,((win_width - (win_width / 10)), 120))
         pg.display.flip()
     
-def correct_screen(n, correct, fa, total):
+async def correct_screen(n, correct, fa, total):
     n = str(n)
     win.fill(background_col)
     msg_to_screen_centered(str(correct) +  " out of " + str(total) + " " + "targets identified with " + str(fa) + " mis-clicks.", BLACK, large_font)
     pg.display.flip()
     pg.time.delay((feedback_time + 2) * 1000)
 
-def n_back_screen(n):
+async def n_back_screen(n):
     n = str(n)
     win.fill(background_col)
     msg_to_screen_centered("This is a " + n + "-back task.", BLACK, large_font)
     pg.display.flip()
     pg.time.delay((feedback_time + 1) * 1000)
 
-def blank_screen():
+async def blank_screen():
     win.fill(background_col)
     pg.display.flip()
     pg.time.delay(2 * 1000)
 
-def nback_screen():
+async def nback_screen():
     win.fill(background_col)
     msg_to_screen_centered("N-back Experiment (press F to continue)", BLACK, large_font)
     pg.display.flip()
@@ -746,7 +746,7 @@ class MOTobj:
         info = pg.display.Info()
         win_width = info.current_w
         win_height = info.current_h
-        boundary = make_boundary(win_height, win_width)
+        
         self.x, self.y = choice([n for n in range(int(boundary["left"]), int(boundary["right"]))
                                  if n not in range(x - self.radius, x + self.radius)]), \
                         choice([n for n in range(int(boundary["up"]), int(boundary["down"]))
@@ -768,17 +768,17 @@ class MOTobj:
         self.isClicked = False
         self.isSelected = False
     
-    def change_color(self, color):
+    async def change_color(self, color):
         self.color = color
 
-    def in_circle(self, mouse_x, mouse_y):
+    async def in_circle(self, mouse_x, mouse_y):
         # -- Return boolean value deping on mouse position, if it is in circle or not
         if sqrt(((mouse_x - self.x) ** 2) + ((mouse_y - self.y) ** 2)) < self.radius:
             return True
         else:
             return False
 
-    def state_control(self, state):
+    async def state_control(self, state):
         # -- Neutral or default state with no form of mouse selection
         if state == "neutral":
             self.color = self.default_color
@@ -802,17 +802,17 @@ class MOTobj:
             self.isClicked = False
             self.isSelected = True
 
-    def draw_circle(self, display=win):
+    async def draw_circle(self, display=win):
         # -- Function to draw circle onto display
         pg.draw.circle(display, self.color, (int(self.x), int(self.y)), self.radius)
         
     # add a fix for when dx/dy equals 0 (probably in brownian motion)
-    def detect_collision(self, mlist):
+    async def detect_collision(self, mlist):
         # -- Object positions in x and y coordinates change in velocity value
         self.x += self.dx
         self.y += self.dy
         # -- If the object reaches the window boundary, bounce back
-        #boundary = make_boundary(win_height, win_width)
+        # await make_boundary(win_height, win_width)
         if self.x < boundary["left"] or self.x > boundary["right"]:
             self.dx *= -1
         if self.y < boundary["up"] or self.y > boundary["down"]:
@@ -843,9 +843,10 @@ class MOTobj:
                 self.color = GREEN
 
 # randomly shuffles positions of balls
-def shuffle_positions(mlist):
+async def shuffle_positions(mlist):
     """Shuffle the position of circles"""
     for self in mlist:
+        #boundary = await make_boundary(win_height, win_width)
         self.x = choice([n for n in range(int(boundary["left"] + 21), int(boundary["right"] - 21))
                          if n not in range(x - self.radius, x + self.radius)])
         self.y = choice([n for n in range(int(boundary["up"] + 21), int(boundary["down"] - 21))
@@ -853,23 +854,26 @@ def shuffle_positions(mlist):
 
 
 # checks that balls do not spawn in corner or overlap, fixes problem if it occurs
-def valid_positions(mlist):
+async def valid_positions(mlist):
     truth_list = []
     valid_positions = False 
     while (valid_positions == False):
         for m in mlist: # iterate over all balls 
             # check if within boundaries
+            #boundary = await make_boundary(win_height, win_width)
             if (m.x > boundary["right"]) or (m.x < boundary["left"]) or (m.y > boundary["down"]) or (m.y < boundary["up"]):
                 truth_list.append(0) # if located in corner with square then invalid
             for k in mlist:
                 distance = sqrt(((m.x - k.x) ** 2) + ((m.y - k.y) ** 2))
                 if distance < 2 * m.radius and distance != 0:
                     truth_list.append(0) # if overlapping with another ball then invalid
+        #assert 1 == 0 #reaches
         if truth_list == []: # if every ball satisfies our condition then we are fine 
             valid_positions = True
         else: #otherwise we shuffle the balls and start again
             shuffle_positions(mlist)
         truth_list = []
+        #assert 1 == 0 #reaches
     
 # get initial dx and dy values for balls
 def velocity(game):
@@ -889,7 +893,7 @@ def product(list, n):
 
 # == Function for updating a game based on the stage ==
 # -- Defines a dictionary called "game"
-def update_game(stage):
+async def update_game(stage):
     if stage < 0:
         stage = 0
     game = {"stage": stage}
@@ -911,21 +915,24 @@ def update_game(stage):
     return game
 
 # == Generates a List of Objects (Balls) ==
-def generate_list(game, color):
+async def generate_list(game, color):
     """function to generate new list of objects"""
     target_list = []
     num_targ = game["targs"]
+    #assert 1 == 0 #reaches
     for nt in range(num_targ):
         t = MOTobj(game, color)
         target_list.append(t)
-
+    #assert 1 == 0 #reaches
     distractor_list = []
     num_dist = game["dists"] 
     for nd in range(num_dist):
         d = MOTobj(game, color)
         distractor_list.append(d)
     mlist = distractor_list + target_list # NEW NEw NEW 
-    valid_positions(mlist) # NEW NEW NEW after balls for trial generated we make sure they occupy valid positions 
+    #assert 1 == 0 #reaches
+    await valid_positions(mlist) # NEW NEW NEW after balls for trial generated we make sure they occupy valid positions 
+    assert 1 == 0 #reaches
     return distractor_list, target_list
 
 # == Helper Function for Delaying Game by t seconds ==
@@ -1185,16 +1192,20 @@ async def prepare_files():
 
 # == Runs Real Trials (same as practice but user performance is saved) ==
 async def trials(game, recorder, gametype, time_or_trials, high_score, audio_path, participant_number, user_number, name, outlet):
-    #assert 1 == 0 it doesn't reach here
+    
+    #assert 1 == 0 reaches here
     #outlet.resync()
     # == Messages to user based on gametype ==
     await welcome_messages(game, gametype, high_score)
+    
     #assert 1 ==0 reaches here
     # == Generates the game ==
     dt = 0
     hit_rates = []
     dprimes = []
-    list_d, list_t = generate_list(game, WHITE)
+    #assert 1 == 0 #doesn't reaches here
+    list_d, list_t = await generate_list(game, WHITE)
+    assert 1 == 0 #doesn't reach here
     list_m = list_d + list_t
     count = 0
     break_given = False
@@ -1218,18 +1229,20 @@ async def trials(game, recorder, gametype, time_or_trials, high_score, audio_pat
     
     # == Controls the "game" part of the game ==
     while True:
+        assert 1 == 0 #doesn't reach here
         #print(" line 1163!")
         #log('line 1180')
         
         num_targs = game["targs"]
         pg.time.Clock().tick_busy_loop(FPS)  # = Set FPS
         win.fill(background_col)  # - fill background with background color
-        draw_boundaries()
+        await draw_boundaries()
+        assert 1 == 0 #doesn't reach here
         mx, my = pg.mouse.get_pos()  # - get x and y coord of mouse cursor on window
 
         selected_list = []  # - list for all selected objects
         selected_targ = []  # - list for all SELECTED TARGETS
-        #assert 1 == 0 reaches here
+        assert 1 == 0 #doesn't reach here
         # == Controls responses to user input ===
         for event in pg.event.get():
             print(event)
@@ -1271,69 +1284,68 @@ async def trials(game, recorder, gametype, time_or_trials, high_score, audio_pat
                             insufficient_selections = True
                             insuf_sel_time = pg.time.get_ticks()
             for obj in list_m:
-                #THE PROGRAM IS BREAKING SOMEWHERE IN HERE
-                if obj.in_circle(mx, my):
+                if await obj.in_circle(mx, my):
                     if event.type == pg.MOUSEMOTION: 
                         if not obj.isClicked and not obj.isSelected:
-                            obj.state_control("hovered")
+                            await obj.state_control("hovered")
                     if event.type == pg.MOUSEBUTTONDOWN:
                         if not obj.isClicked and not obj.isSelected:
                             #if gametype == 'real':   
-                            square_time = draw_square(outlet, 'CLCK', list_m)
+                            square_time = await draw_square(outlet, 'CLCK', list_m)
                             #LSL_push(outlet, 'CLK') #click object 
-                            obj.state_control("clicked")
+                            await obj.state_control("clicked")
                         if not obj.isClicked and obj.isSelected:
                             #if gametype == 'real': 
-                            square_time = draw_square(outlet, 'UCLK', list_m)
+                            square_time = await draw_square(outlet, 'UCLK', list_m)
                             #LSL_push(outlet, 'UCLK') #unclick object 
-                            obj.state_control("neutral")
+                            await obj.state_control("neutral")
                     if event.type == pg.MOUSEBUTTONUP:
                         if obj.isClicked and not obj.isSelected:
-                            obj.state_control("selected")
-                elif not obj.in_circle(mx, my):
+                            await obj.state_control("selected")
+                elif not await obj.in_circle(mx, my):
                     if event.type == pg.MOUSEMOTION:
                         if not obj.isClicked and not obj.isSelected:
-                            obj.state_control("neutral")
+                            await obj.state_control("neutral")
                     if event.type == pg.MOUSEBUTTONUP:
                         if obj.isClicked and not obj.isSelected:
-                            obj.state_control("neutral")
+                            await obj.state_control("neutral")
         # == Grabs the time after each frame and total time passed in the trial ==
         t1 = pg.time.get_ticks()
         dt = (t1 - t0)/1000
 
         if count < time_or_trials: # need to edit because we are using time for real trials
             while (pg.time.get_ticks() - square_time < 100):
-                draw_square2()
+                await draw_square2()
             if not reset:
                 #draw_boundaries()
                 if dt <= Tfix + 1:
                     if dt < (Tfix + 1) / 4:# and gametype == 'real':
-                        draw_square2()
+                        await draw_square2()
                     for targ in list_m: # hovering does not change color
-                        targ.state_control("neutral")
+                        await targ.state_control("neutral")
                     pg.mouse.set_visible(False)
                     fix_record = fixation_screen(list_m, gametype, outlet, fix_record, game["stage"])
                 elif Tfix + 1 < dt <= Tfl + 1.85:
                     for targ in list_m: # hovering does not change color
-                        targ.state_control("neutral")
+                        await targ.state_control("neutral")
                     if flash == True:
-                        flash, flash_record = flash_targets(list_d, list_t, flash, gametype, outlet, flash_record) # flash color
+                        flash, flash_record = await flash_targets(list_d, list_t, flash, gametype, outlet, flash_record) # flash color
                         dt = Tfl + 1.95
                         flash = False
                 elif Tfl + 1.85 < dt <= Tfl + 2:
                     for targ in list_m: # hovering does not change color
-                        targ.state_control("neutral")
-                    flash_targets(list_d, list_t, flash, gametype, outlet, flash_record) # reset color
+                        await targ.state_control("neutral")
+                    await flash_targets(list_d, list_t, flash, gametype, outlet, flash_record) # reset color
                 elif Tfl + 2 < dt <= Tani + 2:
                     if dt < Tfl + 2.1:# and gametype == 'real':
-                        draw_square2()
+                        await draw_square2()
                     pushed_flash_already = False
                     for targ in list_m: # hovering does not change color
-                        targ.state_control("neutral")
+                        await targ.state_control("neutral")
                     mvmt_start = animate(list_d, list_t, list_m, gametype, outlet, mvmt_start)
                 elif Tani + 2 < dt <= Tans+ 2:
                     if mvmt_stop == False:# and gametype == 'real':
-                        square_time = draw_square(outlet, 'MVE1', list_m)
+                        square_time = await draw_square(outlet, 'MVE1', list_m)
                         mvmt_stop = True
                     if Tani + 2 < dt <= Tani + 2.05: # reset mouse position
                         info = pg.display.Info()
@@ -1342,9 +1354,9 @@ async def trials(game, recorder, gametype, time_or_trials, high_score, audio_pat
                         pg.mouse.set_pos([win_width/2,win_height/2])
                     pg.mouse.set_visible(True)
                     if insufficient_selections:
-                        static_draw(list_m)
+                        await static_draw(list_m)
                         message_screen("not_selected_enough", num_targs, num_targs + game["dists"])
-                        static_draw(list_m)
+                        await static_draw(list_m)
                         if pg.time.get_ticks() - insuf_sel_time > 500:
                             insufficient_selections = False
                     if gametype == 'guide':
@@ -1366,11 +1378,11 @@ async def trials(game, recorder, gametype, time_or_trials, high_score, audio_pat
                                 # == Records info for the trial ==
                 #if gametype == 'real':
                 if len(selected_list) == len(selected_targ):# and gametype == 'real':
-                    square_time = draw_square(outlet, 'CRCT', list_m)
+                    square_time = await draw_square(outlet, 'CRCT', list_m)
                 else:
                     #if gametype == 'real':
                     miss_tag = 'MS' + str(len(selected_targ)) + str(num_targs)
-                    square_time = draw_square(outlet, miss_tag, list_m)
+                    square_time = await draw_square(outlet, miss_tag, list_m)
                 hit_rates.append(len(selected_targ) / len(selected_list))
                 dprimes = d_prime(dprimes, hit_rates, game)
                 d_prime_string = str(dprimes[-1])[:4]
@@ -1381,7 +1393,7 @@ async def trials(game, recorder, gametype, time_or_trials, high_score, audio_pat
                 record_response(participant_number, user_number, name, t_sub, len(selected_targ), game, False, dprimes[-1], total_time / 1000, recorder)
 
                 # == Based on that performance, we update the stage and score ==
-                game, score, consecutive = update_stage(selected_targ, game, gametype, score, consecutive)
+                game, score, consecutive = await update_stage(selected_targ, game, gametype, score, consecutive)
                 if game["stage"] + 1 > highest_level:
                     highest_level = game["stage"] + 1
                 reset = True
@@ -1392,7 +1404,7 @@ async def trials(game, recorder, gametype, time_or_trials, high_score, audio_pat
                 pg.mouse.set_visible(False)
                 if gametype == 'real':
                     record_response(participant_number, user_number, name, "timed out", "NA", game, True, "NA", total_time / 1000, recorder)
-                message_screen("timeup", num_targs, num_targs + game["dists"])
+                await message_screen("timeup", num_targs, num_targs + game["dists"])
                 delay(feedback_time)
                 count -= 1
                 reset = True
@@ -1410,8 +1422,8 @@ async def trials(game, recorder, gametype, time_or_trials, high_score, audio_pat
                     break_given = True
                     user_break_screen()  
 
-                game = update_game(game["stage"])
-                list_d, list_t = generate_list(game, WHITE)
+                game = await update_game(game["stage"])
+                list_d, list_t = await generate_list(game, WHITE)
                 list_m = list_d + list_t
                 if gametype != 'real':
                     count += 1
@@ -1453,6 +1465,7 @@ async def main(unified):
     
     print("main loop!")
     #assert 1 == 0
+    await make_boundary(win_height, win_width)
     mot_play_again = True
     while mot_play_again == True:
         # == Initiate pygame and collect user information ==
@@ -1488,9 +1501,9 @@ async def main(unified):
         #outlet.begin_rec()
         #outlet.send_event(event_type = 'STRT', start = 0.0)
         outlet = 0
-        game_guide = update_game(0)
-        game_prac = update_game(0)
-        game_real = update_game(0)
+        game_guide = await update_game(0)
+        game_prac = await update_game(0)
+        game_real = await update_game(0)
         #assert 1==0 #reaches here
     
         # == Start guide ==
@@ -1503,7 +1516,7 @@ async def main(unified):
         # == Start real trials, recording responses ==
         if key == 'k' or key == 'complete':
             #outlet.resync()
-            square_time = draw_square(outlet, 'STRT', 0)
+            square_time = await draw_square(outlet, 'STRT', 0)
             while pg.time.get_ticks() - square_time < 100:
                 draw_square2()
             #LSL_push(outlet, 'real_trials_start')
