@@ -871,9 +871,9 @@ async def valid_positions(mlist):
         if truth_list == []: # if every ball satisfies our condition then we are fine 
             valid_positions = True
         else: #otherwise we shuffle the balls and start again
-            shuffle_positions(mlist)
+            await shuffle_positions(mlist)
         truth_list = []
-        #assert 1 == 0 #reaches
+        asyncio.sleep(0)        #assert 1 == 0 #reaches
     
 # get initial dx and dy values for balls
 def velocity(game):
@@ -932,7 +932,7 @@ async def generate_list(game, color):
     mlist = distractor_list + target_list # NEW NEw NEW 
     #assert 1 == 0 #reaches
     await valid_positions(mlist) # NEW NEW NEW after balls for trial generated we make sure they occupy valid positions 
-    assert 1 == 0 #reaches
+    assert 1 == 0 #doesn't reach
     return distractor_list, target_list
 
 # == Helper Function for Delaying Game by t seconds ==
